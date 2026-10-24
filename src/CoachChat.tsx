@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useRef, useState } from 'react'
 import './CoachChat.css'
 
 type Transaction = {
@@ -24,7 +24,7 @@ type Props = {
 }
 
 type ChatMessage = {
-  id: number
+  id: string
   role: 'user' | 'coach'
   text: string
 }
@@ -50,10 +50,12 @@ function buildReply(
   const income = transactions
     .filter((t) => t.amount > 0)
     .reduce((sum, t) => sum + t.amount, 0)
+
   const totalExpenses = expenses.reduce(
     (sum, t) => sum + Math.abs(t.amount),
     0,
   )
+
   const cashFlow = income - totalExpenses
 
   const categoryTotals = expenses.reduce<Record<string, number>>(
@@ -61,6 +63,7 @@ function buildReply(
       totals[transaction.category] =
         (totals[transaction.category] || 0) +
         Math.abs(transaction.amount)
+
       return totals
     },
     {},
@@ -148,6 +151,7 @@ function buildReply(
     q.includes('spend on')
   ) {
     const amountMatch = q.match(/(?:₹|rs\.?\s*)(\d+(?:,\d{3})*(?:\.\d+)?)/i)
+
     const amount = amountMatch
       ? Number(amountMatch[1].replace(/,/g, ''))
       : null
@@ -197,14 +201,18 @@ function buildReply(
 }
 
 export default function CoachChat({ transactions, goals }: Props) {
+  const messageIdPrefix = useId()
+  const messageCounter = useRef(0)
+
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
-      id: 1,
+      id: `${messageIdPrefix}-welcome`,
       role: 'coach',
       text: 'Hi! 🌱 I’m your Vikasana money coach. I can help you explore your recorded spending, plan savings, and think through financial decisions. What would you like to work on?',
     },
   ])
+
   const [busy, setBusy] = useState(false)
 
   const summary = useMemo(() => {
@@ -221,10 +229,11 @@ export default function CoachChat({ transactions, goals }: Props) {
 
   function sendMessage(text = input) {
     const question = text.trim()
+
     if (!question || busy) return
 
     const userMessage: ChatMessage = {
-      id: Date.now(),
+      id: `${messageIdPrefix}-${++messageCounter.current}`,
       role: 'user',
       text: question,
     }
@@ -240,7 +249,7 @@ export default function CoachChat({ transactions, goals }: Props) {
       setMessages((current) => [
         ...current,
         {
-          id: Date.now() + 1,
+          id: `${messageIdPrefix}-${++messageCounter.current}`,
           role: 'coach',
           text: reply,
         },
@@ -254,10 +263,12 @@ export default function CoachChat({ transactions, goals }: Props) {
     <section className="coach-chat" aria-label="Vikasana money coach">
       <header className="coach-chat-header">
         <div className="coach-avatar" aria-hidden="true">✳</div>
+
         <div>
           <h3>Your money coach</h3>
           <p>Practical guidance, at your pace</p>
         </div>
+
         <span className="coach-status">Ready</span>
       </header>
 
@@ -266,10 +277,12 @@ export default function CoachChat({ transactions, goals }: Props) {
           <span>Recorded income</span>
           <strong>{money(summary.income)}</strong>
         </div>
+
         <div>
           <span>Recorded expenses</span>
           <strong>{money(summary.expenses)}</strong>
         </div>
+
         <div>
           <span>Cash flow</span>
           <strong>{money(summary.cashFlow)}</strong>
@@ -285,6 +298,7 @@ export default function CoachChat({ transactions, goals }: Props) {
             <span className="message-label">
               {message.role === 'coach' ? 'Vikasana' : 'You'}
             </span>
+
             <p>{message.text}</p>
           </div>
         ))}
@@ -298,6 +312,7 @@ export default function CoachChat({ transactions, goals }: Props) {
 
       <div className="coach-starters">
         <p>Not sure where to start?</p>
+
         <div className="coach-starter-buttons">
           {starters.map((starter) => (
             <button
@@ -322,6 +337,7 @@ export default function CoachChat({ transactions, goals }: Props) {
         <label className="visually-hidden" htmlFor="coach-question">
           Ask your money coach
         </label>
+
         <input
           id="coach-question"
           value={input}
@@ -330,6 +346,7 @@ export default function CoachChat({ transactions, goals }: Props) {
           maxLength={500}
           disabled={busy}
         />
+
         <button type="submit" disabled={busy || !input.trim()}>
           Send
         </button>

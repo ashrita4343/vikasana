@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import CoachChat from './CoachChat'
-
 type Transaction = {
   id: string
   name: string
@@ -10,14 +9,12 @@ type Transaction = {
   amount: number
   icon: string
 }
-
 type Goal = {
   id: string
   name: string
   target: number
   saved: number
 }
-
 type ApiTransaction = {
   id: number
   name: string
@@ -26,14 +23,12 @@ type ApiTransaction = {
   kind: 'income' | 'expense'
   transaction_date: string
 }
-
 type ApiGoal = {
   id: number
   name: string
   target: number
   saved: number
 }
-
 type AuthResponse = {
   access_token: string
   token_type: string
@@ -42,15 +37,12 @@ type AuthResponse = {
     email: string
   }
 }
-
 const API_URL = (
   import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 ).replace(/\/$/, '')
-
 const REMINDER_KEY = 'vikasana-reminders'
 const TOKEN_KEY = 'vikasana-token'
 const EMAIL_KEY = 'vikasana-email'
-
 const categories = [
   'Food & Dining',
   'Shopping',
@@ -62,7 +54,6 @@ const categories = [
   'Entertainment',
   'Other',
 ]
-
 const navItems = [
   { id: 'overview', icon: '◫', label: 'Overview' },
   { id: 'transactions', icon: '↔', label: 'Transactions' },
@@ -70,15 +61,12 @@ const navItems = [
   { id: 'goals', icon: '◎', label: 'Savings goals' },
   { id: 'coach', icon: '✳', label: 'Money coach' },
 ]
-
 const money = (amount: number) =>
   `₹${Math.round(amount).toLocaleString('en-IN')}`
-
 function todayISO() {
   const date = new Date()
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
-
 function safeRead<T>(key: string, fallback: T): T {
   try {
     const value = localStorage.getItem(key)
@@ -87,7 +75,6 @@ function safeRead<T>(key: string, fallback: T): T {
     return fallback
   }
 }
-
 function transactionIcon(
   category: string,
   kind: 'income' | 'expense',
@@ -103,7 +90,6 @@ function transactionIcon(
   if (category === 'Bills') return '🧾'
   return '💳'
 }
-
 function fromApiTransaction(item: ApiTransaction): Transaction {
   return {
     id: String(item.id),
@@ -114,7 +100,6 @@ function fromApiTransaction(item: ApiTransaction): Transaction {
     icon: transactionIcon(item.category, item.kind),
   }
 }
-
 function dateLabel(date: string) {
   const parsed = new Date(`${date}T12:00:00`)
   return Number.isNaN(parsed.getTime())
@@ -125,7 +110,6 @@ function dateLabel(date: string) {
         year: 'numeric',
       })
 }
-
 async function apiRequest<T>(
   path: string,
   options?: RequestInit,
@@ -139,10 +123,8 @@ async function apiRequest<T>(
       ...(options?.headers || {}),
     },
   })
-
   if (!response.ok) {
     let detail = `Request failed (${response.status})`
-
     try {
       const body = await response.json()
       if (typeof body.detail === 'string') {
@@ -155,69 +137,53 @@ async function apiRequest<T>(
     } catch {
       // Keep the default error message.
     }
-
     throw new Error(detail)
   }
-
   if (response.status === 204) {
     return undefined as T
   }
-
   return response.json() as Promise<T>
 }
-
 function App() {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const [authEmail, setAuthEmail] = useState('')
   const [authPassword, setAuthPassword] = useState('')
   const [authBusy, setAuthBusy] = useState(false)
-
   const [userEmail, setUserEmail] = useState(
     () => localStorage.getItem(EMAIL_KEY) || '',
   )
-
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => Boolean(localStorage.getItem(TOKEN_KEY)),
   )
-
   const [activeSection, setActiveSection] = useState('overview')
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
   const [selectedMonth, setSelectedMonth] = useState(todayISO().slice(0, 7))
-
   const [showTransactionForm, setShowTransactionForm] = useState(false)
   const [showGoalForm, setShowGoalForm] = useState(false)
-
   const [transactionName, setTransactionName] = useState('')
   const [transactionAmount, setTransactionAmount] = useState('')
   const [transactionType, setTransactionType] =
     useState<'expense' | 'income'>('expense')
   const [transactionCategory, setTransactionCategory] =
     useState('Food & Dining')
-
   const [goalName, setGoalName] = useState('')
   const [goalTarget, setGoalTarget] = useState('')
   const [contributionGoalId, setContributionGoalId] = useState('')
   const [contributionAmount, setContributionAmount] = useState('500')
-
   const [message, setMessage] = useState('')
-
   const [remindersEnabled, setRemindersEnabled] = useState(
     () => safeRead(REMINDER_KEY, false),
   )
-
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [apiConnected, setApiConnected] = useState(false)
-
   async function refreshData() {
     const [txData, goalData] = await Promise.all([
       apiRequest<ApiTransaction[]>('/api/transactions'),
       apiRequest<ApiGoal[]>('/api/goals'),
     ])
-
     setTransactions(txData.map(fromApiTransaction))
-
     setGoals(
       goalData.map((goal) => ({
         id: String(goal.id),
@@ -226,32 +192,23 @@ function App() {
         saved: goal.saved,
       })),
     )
-
     setApiConnected(true)
   }
-
   useEffect(() => {
     if (!isAuthenticated) {
-      setLoading(false)
       return
     }
-
     let cancelled = false
-
     async function loadData() {
       setLoading(true)
-
       try {
         await refreshData()
-
         if (!cancelled) {
           setMessage('')
         }
       } catch (error) {
         if (cancelled) return
-
         setApiConnected(false)
-
         setMessage(
           `Could not load your data. Check that the backend is running. ${
             error instanceof Error ? error.message : ''
@@ -263,14 +220,11 @@ function App() {
         }
       }
     }
-
     void loadData()
-
     return () => {
       cancelled = true
     }
   }, [isAuthenticated])
-
   useEffect(() => {
     try {
       localStorage.setItem(
@@ -281,7 +235,6 @@ function App() {
       // Reminder preferences are optional.
     }
   }, [remindersEnabled])
-
   const monthTransactions = useMemo(
     () =>
       transactions.filter(
@@ -290,18 +243,14 @@ function App() {
       ),
     [transactions, selectedMonth],
   )
-
   const income = monthTransactions
     .filter((transaction) => transaction.amount > 0)
     .reduce((sum, transaction) => sum + transaction.amount, 0)
-
   const expenses = monthTransactions
     .filter((transaction) => transaction.amount < 0)
     .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0)
-
   const cashFlow = income - expenses
   const savingsRate = income > 0 ? (cashFlow / income) * 100 : null
-
   const categoryTotals = categories
     .map((name) => ({
       name,
@@ -317,50 +266,40 @@ function App() {
     }))
     .filter((item) => item.amount > 0)
     .sort((a, b) => b.amount - a.amount)
-
   const topCategory = categoryTotals[0]
   const maxCategory = Math.max(
     1,
     ...categoryTotals.map((item) => item.amount),
   )
-
   const suggestedSaving = topCategory
     ? Math.min(
         1000,
         Math.max(50, Math.round((topCategory.amount * 0.1) / 10) * 10),
       )
     : 50
-
   function navigateTo(id: string) {
     setActiveSection(id)
-
     document.getElementById(id)?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
     })
   }
-
   async function handleAuthentication(
     event: React.FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault()
-
     const email = authEmail.trim().toLowerCase()
-
     if (!email || !authPassword) {
       setMessage('Enter your email and password.')
       return
     }
-
     setAuthBusy(true)
     setMessage('')
-
     try {
       const endpoint =
         authMode === 'register'
           ? '/api/auth/register'
           : '/api/auth/login'
-
       const result = await apiRequest<AuthResponse>(endpoint, {
         method: 'POST',
         body: JSON.stringify({
@@ -368,15 +307,12 @@ function App() {
           password: authPassword,
         }),
       })
-
       localStorage.setItem(TOKEN_KEY, result.access_token)
       localStorage.setItem(EMAIL_KEY, result.user.email)
-
       setUserEmail(result.user.email)
       setIsAuthenticated(true)
       setAuthPassword('')
       setLoading(true)
-
       try {
         await refreshData()
         setMessage('Welcome to Vikasana!')
@@ -399,11 +335,9 @@ function App() {
       setLoading(false)
     }
   }
-
   function handleLogout() {
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(EMAIL_KEY)
-
     setIsAuthenticated(false)
     setUserEmail('')
     setTransactions([])
@@ -414,26 +348,20 @@ function App() {
     setAuthEmail('')
     setActiveSection('overview')
   }
-
   async function addTransaction(
     event: React.FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault()
-
     const name = transactionName.trim()
     const amount = Number(transactionAmount)
-
     if (!name || !Number.isFinite(amount) || amount <= 0) {
       setMessage('Enter a name and an amount greater than zero.')
       return
     }
-
     setSaving(true)
-
     try {
       const category =
         transactionType === 'income' ? 'Income' : transactionCategory
-
       const created = await apiRequest<ApiTransaction>(
         '/api/transactions',
         {
@@ -447,9 +375,7 @@ function App() {
           }),
         },
       )
-
       const transaction = fromApiTransaction(created)
-
       setTransactions((current) => [transaction, ...current])
       setSelectedMonth(transaction.date.slice(0, 7))
       setTransactionName('')
@@ -466,24 +392,19 @@ function App() {
       setSaving(false)
     }
   }
-
   async function deleteTransaction(id: string) {
     if (!/^\d+$/.test(id)) {
       setMessage('Invalid transaction ID. Refresh the dashboard.')
       return
     }
-
     setSaving(true)
-
     try {
       await apiRequest<void>(`/api/transactions/${id}`, {
         method: 'DELETE',
       })
-
       setTransactions((current) =>
         current.filter((transaction) => transaction.id !== id),
       )
-
       setMessage('Transaction deleted.')
     } catch (error) {
       setMessage(
@@ -495,20 +416,15 @@ function App() {
       setSaving(false)
     }
   }
-
   async function addGoal(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-
     const name = goalName.trim()
     const target = Number(goalTarget)
-
     if (!name || !Number.isFinite(target) || target <= 0) {
       setMessage('Enter a goal name and a target greater than zero.')
       return
     }
-
     setSaving(true)
-
     try {
       const created = await apiRequest<ApiGoal>('/api/goals', {
         method: 'POST',
@@ -518,7 +434,6 @@ function App() {
           saved: 0,
         }),
       })
-
       setGoals((current) => [
         ...current,
         {
@@ -528,7 +443,6 @@ function App() {
           saved: created.saved,
         },
       ])
-
       setGoalName('')
       setGoalTarget('')
       setShowGoalForm(false)
@@ -543,14 +457,11 @@ function App() {
       setSaving(false)
     }
   }
-
   async function contributeToGoal(
     event: React.FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault()
-
     const amount = Number(contributionAmount)
-
     if (
       !contributionGoalId ||
       !Number.isFinite(amount) ||
@@ -559,23 +470,18 @@ function App() {
       setMessage('Choose a goal and enter an amount greater than zero.')
       return
     }
-
     const goal = goals.find(
       (item) => item.id === contributionGoalId,
     )
-
     if (!goal) {
       setMessage('That savings goal could not be found.')
       return
     }
-
     if (goal.saved >= goal.target) {
       setMessage('That goal is already complete.')
       return
     }
-
     setSaving(true)
-
     try {
       const updated = await apiRequest<ApiGoal>(
         `/api/goals/${goal.id}/contribute`,
@@ -584,7 +490,6 @@ function App() {
           body: JSON.stringify({ amount }),
         },
       )
-
       setGoals((current) =>
         current.map((item) =>
           item.id === String(updated.id)
@@ -592,11 +497,9 @@ function App() {
             : item,
         ),
       )
-
       setMessage(
         `${money(updated.saved - goal.saved)} added to ${goal.name}.`,
       )
-
       setContributionAmount('500')
       setContributionGoalId('')
     } catch (error) {
@@ -609,28 +512,22 @@ function App() {
       setSaving(false)
     }
   }
-
   async function deleteGoal(id: string) {
     if (!/^\d+$/.test(id)) {
       setMessage('Invalid savings goal ID.')
       return
     }
-
     setSaving(true)
-
     try {
       await apiRequest<void>(`/api/goals/${id}`, {
         method: 'DELETE',
       })
-
       setGoals((current) =>
         current.filter((goal) => goal.id !== id),
       )
-
       if (contributionGoalId === id) {
         setContributionGoalId('')
       }
-
       setMessage('Savings goal deleted.')
     } catch (error) {
       setMessage(
@@ -642,11 +539,9 @@ function App() {
       setSaving(false)
     }
   }
-
   function exportTransactions() {
     const quote = (value: string | number) =>
       `"${String(value).replace(/"/g, '""')}"`
-
     const rows = [
       ['Name', 'Category', 'Date', 'Amount'].map(quote).join(','),
       ...transactions.map((transaction) =>
@@ -660,41 +555,32 @@ function App() {
           .join(','),
       ),
     ]
-
     const url = URL.createObjectURL(
       new Blob([rows.join('\n')], {
         type: 'text/csv;charset=utf-8;',
       }),
     )
-
     const link = document.createElement('a')
     link.href = url
     link.download = 'vikasana-transactions.csv'
     link.click()
-
     URL.revokeObjectURL(url)
   }
-
   async function enableReminders() {
     if (!('Notification' in window)) {
       setMessage('This browser does not support notifications.')
       return
     }
-
     try {
       const permission = await Notification.requestPermission()
-
       if (permission !== 'granted') {
         setMessage('Notifications were not enabled.')
         return
       }
-
       setRemindersEnabled(true)
-
       new Notification('Vikasana money check-in', {
         body: 'Review your spending and savings when convenient.',
       })
-
       setMessage(
         'Notifications enabled. This prototype sends a test notification, not scheduled background reminders.',
       )
@@ -702,12 +588,10 @@ function App() {
       setMessage('Could not enable notifications in this browser.')
     }
   }
-
   function disableReminders() {
     setRemindersEnabled(false)
     setMessage('Reminder preference turned off.')
   }
-
   if (!isAuthenticated) {
     return (
       <main className="app-shell">
@@ -728,27 +612,22 @@ function App() {
                 <span>YOUR MONEY, GROWING</span>
               </div>
             </div>
-
             <h1 style={{ marginTop: 32 }}>
               {authMode === 'login'
                 ? 'Welcome back'
                 : 'Create your account'}
             </h1>
-
             <p>Understand your money. Choose your next step.</p>
-
             {message && (
               <p className="feedback-message" role="alert">
                 {message}
               </p>
             )}
-
             <form
               className="goal-form"
               onSubmit={handleAuthentication}
             >
               <label htmlFor="auth-email">Email address</label>
-
               <input
                 id="auth-email"
                 type="email"
@@ -759,9 +638,7 @@ function App() {
                 autoComplete="email"
                 required
               />
-
               <label htmlFor="auth-password">Password</label>
-
               <input
                 id="auth-password"
                 type="password"
@@ -778,7 +655,6 @@ function App() {
                 maxLength={128}
                 required
               />
-
               <button
                 className="primary-button"
                 type="submit"
@@ -791,13 +667,11 @@ function App() {
                     : 'Create account'}
               </button>
             </form>
-
             <p style={{ marginTop: 20 }}>
               {authMode === 'login'
                 ? "Don't have an account?"
                 : 'Already have an account?'}
             </p>
-
             <button
               className="text-button"
               type="button"
@@ -817,7 +691,6 @@ function App() {
       </main>
     )
   }
-
   return (
     <main className="app-shell">
       <aside className="sidebar">
@@ -832,9 +705,7 @@ function App() {
             <span>YOUR MONEY, GROWING</span>
           </div>
         </button>
-
         <p className="nav-label">WORKSPACE</p>
-
         <nav className="navigation">
           {navItems.map((item) => (
             <button
@@ -847,14 +718,12 @@ function App() {
             >
               <span className="nav-icon">{item.icon}</span>
               <span>{item.label}</span>
-
               {item.id === 'coach' && (
                 <span className="new-tag">AI</span>
               )}
             </button>
           ))}
         </nav>
-
         <div className="sidebar-bottom">
           <div className="streak-card">
             <span className="streak-icon">🌱</span>
@@ -863,7 +732,6 @@ function App() {
               <p>Build a habit at your pace.</p>
             </div>
           </div>
-
           <div className="profile">
             <div className="avatar">V</div>
             <div style={{ minWidth: 0 }}>
@@ -880,7 +748,6 @@ function App() {
           </div>
         </div>
       </aside>
-
       <section className="main-content" id="overview">
         <header className="topbar">
           <div>
@@ -889,7 +756,6 @@ function App() {
             </span>
             <h1>Your financial space</h1>
           </div>
-
           <button
             className="outline-button"
             type="button"
@@ -898,7 +764,6 @@ function App() {
             ↗ Export transactions
           </button>
         </header>
-
         <section className="welcome-row">
           <div>
             <h2>
@@ -906,20 +771,17 @@ function App() {
             </h2>
             <p>Understand your money. Choose your next step.</p>
           </div>
-
           <div className="wellness-pill">
             <span />
             Financial wellness: <strong>Building</strong>
           </div>
         </section>
-
         <article className="panel" style={{ marginBottom: 20 }}>
           <div className="panel-heading">
             <div>
               <h3>Monthly report</h3>
               <p>Totals for your selected month</p>
             </div>
-
             <input
               aria-label="Select reporting month"
               type="month"
@@ -929,27 +791,23 @@ function App() {
               }
             />
           </div>
-
           <p>
             {loading
               ? 'Loading your database records…'
               : `${monthTransactions.length} recorded transaction(s).`}{' '}
             Figures reflect entered data, not a verified bank account.
           </p>
-
           <p role="status">
             {apiConnected
               ? '● Connected to Vikasana API'
               : '○ API not connected'}
           </p>
         </article>
-
         {message && (
           <p className="feedback-message" role="status">
             {message}
           </p>
         )}
-
         <section className="metrics-grid">
           <article className="metric-card balance-card">
             <div className="metric-top">
@@ -959,7 +817,6 @@ function App() {
             <h2>{money(cashFlow)}</h2>
             <p>Income minus expenses for the selected month</p>
           </article>
-
           <article className="metric-card">
             <div className="metric-top">
               <span>Income this month</span>
@@ -968,7 +825,6 @@ function App() {
             <h2>{money(income)}</h2>
             <p>Recorded positive transactions</p>
           </article>
-
           <article className="metric-card">
             <div className="metric-top">
               <span>Expenses this month</span>
@@ -982,7 +838,6 @@ function App() {
             </p>
           </article>
         </section>
-
         <section className="content-grid">
           <article className="panel" id="insights">
             <div className="panel-heading">
@@ -991,7 +846,6 @@ function App() {
                 <p>Where your money went this month</p>
               </div>
             </div>
-
             {categoryTotals.length === 0 ? (
               <p>
                 Add a few expenses to see your spending breakdown.
@@ -1007,7 +861,6 @@ function App() {
                       <span>{item.name}</span>
                       <strong>{money(item.amount)}</strong>
                     </div>
-
                     <div
                       style={{
                         background: '#e9e9ef',
@@ -1030,7 +883,6 @@ function App() {
               </div>
             )}
           </article>
-
           <article className="panel">
             <div className="panel-heading">
               <div>
@@ -1038,7 +890,6 @@ function App() {
                 <p>A gentle suggestion based on your entries</p>
               </div>
             </div>
-
             {topCategory ? (
               <>
                 <p>
@@ -1057,7 +908,6 @@ function App() {
                 then spot patterns without judging your spending.
               </p>
             )}
-
             <button
               className="primary-button"
               type="button"
@@ -1067,7 +917,6 @@ function App() {
             </button>
           </article>
         </section>
-
         <section className="content-grid">
           <article className="panel" id="goals">
             <div className="panel-heading">
@@ -1075,7 +924,6 @@ function App() {
                 <h3>Savings goals</h3>
                 <p>Build progress one contribution at a time</p>
               </div>
-
               <button
                 className="text-button"
                 type="button"
@@ -1086,7 +934,6 @@ function App() {
                 {showGoalForm ? 'Cancel' : '+ Create goal'}
               </button>
             </div>
-
             {showGoalForm && (
               <form className="goal-form" onSubmit={addGoal}>
                 <label htmlFor="goal-name">Goal name</label>
@@ -1100,7 +947,6 @@ function App() {
                   maxLength={80}
                   placeholder="e.g. Emergency fund"
                 />
-
                 <label htmlFor="goal-target">
                   Target amount (₹)
                 </label>
@@ -1115,7 +961,6 @@ function App() {
                   }
                   required
                 />
-
                 <button
                   className="primary-button"
                   type="submit"
@@ -1125,7 +970,6 @@ function App() {
                 </button>
               </form>
             )}
-
             {goals.length === 0 ? (
               <p>
                 No savings goals yet. Create one for something that
@@ -1141,7 +985,6 @@ function App() {
                           (goal.saved / goal.target) * 100,
                         )
                       : 0
-
                   return (
                     <div
                       className="goal-item"
@@ -1154,7 +997,6 @@ function App() {
                             {money(goal.saved)} of {money(goal.target)}
                           </p>
                         </div>
-
                         <button
                           className="cancel-button"
                           type="button"
@@ -1164,7 +1006,6 @@ function App() {
                           Delete
                         </button>
                       </div>
-
                       <div
                         style={{
                           background: '#e9e9ef',
@@ -1182,9 +1023,7 @@ function App() {
                           }}
                         />
                       </div>
-
                       <p>{progress.toFixed(0)}% complete</p>
-
                       {progress < 100 && (
                         <button
                           className="text-button"
@@ -1201,7 +1040,6 @@ function App() {
                 })}
               </div>
             )}
-
             {contributionGoalId && (
               <form
                 className="goal-form"
@@ -1210,7 +1048,6 @@ function App() {
                 <label htmlFor="contribution-amount">
                   Contribution amount (₹)
                 </label>
-
                 <input
                   id="contribution-amount"
                   type="number"
@@ -1222,7 +1059,6 @@ function App() {
                   }
                   required
                 />
-
                 <button
                   className="primary-button"
                   type="submit"
@@ -1230,7 +1066,6 @@ function App() {
                 >
                   {saving ? 'Saving…' : 'Confirm contribution'}
                 </button>
-
                 <button
                   className="cancel-button"
                   type="button"
@@ -1241,14 +1076,12 @@ function App() {
               </form>
             )}
           </article>
-
           <article className="panel" id="transactions">
             <div className="panel-heading">
               <div>
                 <h3>Transactions</h3>
                 <p>All recorded transactions</p>
               </div>
-
               <button
                 className="text-button"
                 type="button"
@@ -1261,7 +1094,6 @@ function App() {
                   : '+ Add transaction'}
               </button>
             </div>
-
             {showTransactionForm && (
               <form
                 className="goal-form"
@@ -1278,7 +1110,6 @@ function App() {
                   maxLength={80}
                   placeholder="e.g. Groceries"
                 />
-
                 <label htmlFor="tx-amount">Amount (₹)</label>
                 <input
                   id="tx-amount"
@@ -1291,7 +1122,6 @@ function App() {
                   }
                   required
                 />
-
                 <label htmlFor="tx-type">Type</label>
                 <select
                   id="tx-type"
@@ -1305,7 +1135,6 @@ function App() {
                   <option value="expense">Expense</option>
                   <option value="income">Income</option>
                 </select>
-
                 {transactionType === 'expense' && (
                   <>
                     <label htmlFor="tx-category">Category</label>
@@ -1324,7 +1153,6 @@ function App() {
                     </select>
                   </>
                 )}
-
                 <button
                   className="primary-button"
                   type="submit"
@@ -1334,7 +1162,6 @@ function App() {
                 </button>
               </form>
             )}
-
             {transactions.length === 0 ? (
               <p>
                 No transactions recorded yet. Add your first entry to
@@ -1352,7 +1179,6 @@ function App() {
                       <div className="transaction-icon">
                         {transaction.icon}
                       </div>
-
                       <div className="transaction-details">
                         <strong>{transaction.name}</strong>
                         <p>
@@ -1360,7 +1186,6 @@ function App() {
                           {dateLabel(transaction.date)}
                         </p>
                       </div>
-
                       <strong
                         className={
                           transaction.amount >= 0
@@ -1371,7 +1196,6 @@ function App() {
                         {transaction.amount >= 0 ? '+' : '−'}
                         {money(Math.abs(transaction.amount))}
                       </strong>
-
                       <button
                         className="cancel-button"
                         type="button"
@@ -1389,7 +1213,6 @@ function App() {
             )}
           </article>
         </section>
-
         <section className="content-grid">
           <article className="panel" id="coach">
             <div className="panel-heading">
@@ -1401,13 +1224,11 @@ function App() {
                 </p>
               </div>
             </div>
-
             <CoachChat
               transactions={transactions}
               goals={goals}
             />
           </article>
-
           <article className="panel">
             <div className="panel-heading">
               <div>
@@ -1415,13 +1236,11 @@ function App() {
                 <p>Choose whether to allow browser notifications</p>
               </div>
             </div>
-
             <p>
               A reminder can help you make time to review your
               spending and savings. This prototype sends a test
               notification; it does not schedule background alerts.
             </p>
-
             {remindersEnabled ? (
               <button
                 className="outline-button"
@@ -1441,7 +1260,6 @@ function App() {
             )}
           </article>
         </section>
-
         <footer style={{ padding: '28px 0', textAlign: 'center' }}>
           <p>
             Made for your financial wellbeing ✦ Vikasana ·
@@ -1452,5 +1270,4 @@ function App() {
     </main>
   )
 }
-
 export default App
