@@ -1,0 +1,243 @@
+
+.coach-chat {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #e7e6ef;
+  border-radius: 20px;
+  background: #fff;
+  color: #26243a;
+  box-shadow: 0 8px 28px rgba(37, 32, 74, 0.05);
+}
+
+.coach-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border-bottom: 1px solid #efedf5;
+}
+
+.coach-avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  place-items: center;
+  border-radius: 14px;
+  background: #eeecff;
+  color: #6258d9;
+  font-size: 24px;
+}
+
+.coach-chat-header h3 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.coach-chat-header p {
+  margin: 5px 0 0;
+  color: #77758a;
+  font-size: 13px;
+}
+
+.coach-status {
+  margin-left: auto;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #eaf7ef;
+  color: #267849;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.coach-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px 20px;
+  background: #faf9ff;
+}
+
+.coach-summary > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.coach-summary span {
+  color: #77758a;
+  font-size: 12px;
+}
+
+.coach-summary strong {
+  overflow-wrap: anywhere;
+  font-size: 16px;
+}
+
+.coach-messages {
+  display: flex;
+  max-height: 440px;
+  min-height: 220px;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.coach-message {
+  width: fit-content;
+  max-width: 88%;
+  padding: 12px 15px;
+  border-radius: 15px;
+  background: #f3f2f8;
+}
+
+.coach-message.user {
+  align-self: flex-end;
+  background: #eeecff;
+}
+
+.message-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #77758a;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.coach-message p {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.coach-typing {
+  color: #77758a;
+  font-size: 13px;
+}
+
+.coach-starters {
+  padding: 0 20px 16px;
+}
+
+.coach-starters > p {
+  margin: 0 0 10px;
+  color: #77758a;
+  font-size: 12px;
+}
+
+.coach-starter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.coach-starter-buttons button {
+  padding: 8px 11px;
+  border: 1px solid #dedbef;
+  border-radius: 20px;
+  background: #fff;
+  color: #5048b8;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.coach-starter-buttons button:hover:not(:disabled) {
+  background: #f4f2ff;
+}
+
+.coach-input-form {
+  display: flex;
+  gap: 10px;
+  padding: 16px 20px;
+  border-top: 1px solid #efedf5;
+}
+
+.coach-input-form input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #dedbea;
+  border-radius: 12px;
+  outline: none;
+  background: #fff;
+  color: #26243a;
+  font: inherit;
+  font-size: 14px;
+}
+
+.coach-input-form input:focus {
+  border-color: #7469e8;
+  box-shadow: 0 0 0 3px rgba(116, 105, 232, 0.12);
+}
+
+.coach-input-form button {
+  padding: 0 19px;
+  border: 0;
+  border-radius: 12px;
+  background: #6c63ff;
+  color: white;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.coach-input-form button:disabled,
+.coach-starter-buttons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.coach-disclaimer {
+  margin: 0;
+  padding: 0 20px 18px;
+  color: #858296;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@media (max-width: 520px) {
+  .coach-chat-header,
+  .coach-messages {
+    padding: 15px;
+  }
+
+  .coach-summary {
+    gap: 8px;
+    padding: 14px;
+  }
+
+  .coach-summary span {
+    font-size: 11px;
+  }
+
+  .coach-summary strong {
+    font-size: 13px;
+  }
+
+  .coach-message {
+    max-width: 95%;
+  }
+
+  .coach-input-form {
+    padding: 12px;
+  }
+
+  .coach-input-form button {
+    padding: 0 13px;
+  }
+}
