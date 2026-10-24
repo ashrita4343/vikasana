@@ -2,36 +2,36 @@
 
 **Take control of your money. Build better financial habits.**
 
-Vikasana is a full-stack personal finance application designed to help users track income and expenses, manage savings goals, understand spending patterns, and make more informed financial decisions.
+Vikasana is a full-stack personal finance application that helps users track income and expenses, manage savings goals, understand spending patterns, and make more informed financial decisions.
 
-It combines a React and TypeScript frontend with a FastAPI backend, providing a foundation for personal financial management in a clean, interactive interface.
+Built with React, TypeScript, FastAPI, and SQLite, Vikasana brings everyday money-management tools together in one application.
 
 ## Features
 
 - **User Authentication** — Register and log in with token-based authentication.
 - **Transaction Management** — Record and manage income and expenses.
 - **Financial Dashboard** — Review financial activity and spending summaries.
-- **Savings Goals** — Set financial targets, track progress, and manage contributions.
-- **Money Coach** — Get rule-based responses and insights about spending, budgeting, saving, cash flow, and other supported financial topics.
+- **Savings Goals** — Set targets and track savings progress.
+- **Money Coach** — Get rule-based responses about budgeting, spending, saving, and cash flow.
 - **CSV Export** — Export transaction data for personal analysis.
-- **Reminders** — Access reminders for financial tasks and goals.
+- **Reminders** — Keep track of financial tasks and goals.
 - **Progressive Web App (PWA)** — Includes PWA configuration and app icons.
 
 ## Tech Stack
 
-| Layer | Technologies |
+| Layer | Technology |
 |---|---|
 | Frontend | React, TypeScript, Vite |
 | Styling | CSS |
 | Backend | Python, FastAPI |
 | Database | SQLite, SQLAlchemy |
-| Authentication | JWT-based authentication |
-| Development | ESLint, npm |
+| Authentication | JWT |
+| Package management | npm, pip |
 
 ## Project Structure
 
 ```text
-Vikasana/
+vikasana/
 ├── backend/
 │   ├── main.py
 │   └── requirements.txt
@@ -57,22 +57,22 @@ Vikasana/
 
 ### Prerequisites
 
-Install the following before running the project:
+Install:
 
+- Git
 - Node.js and npm
 - Python 3.10 or later
-- Git
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ashrita4343/vikasana-ai-financial-coach.git
-cd vikasana-ai-financial-coach
+git clone https://github.com/ashrita4343/vikasana.git
+cd vikasana
 ```
 
 ### 2. Set up the backend
 
-From the project root, create and activate a Python virtual environment.
+From the project root, create and activate a virtual environment.
 
 **Windows PowerShell:**
 
@@ -82,64 +82,62 @@ python -m venv .venv
 pip install -r backend/requirements.txt
 ```
 
-Start the FastAPI development server:
+Configure the JWT signing secret using the environment variable expected by `backend/main.py`. Use a strong, private secret and never commit it to GitHub.
+
+Start the backend:
 
 ```powershell
 uvicorn backend.main:app --reload
 ```
 
-The API will typically be available at `http://127.0.0.1:8000`.
+The API should be available at:
 
-Explore the interactive API documentation at `http://127.0.0.1:8000/docs`.
+- API: `http://127.0.0.1:8000`
+- Interactive API documentation: `http://127.0.0.1:8000/docs`
 
 ### 3. Set up the frontend
 
-Open a second terminal in the project root and install the dependencies:
+Open a second terminal in the project root:
 
-```bash
+```powershell
 npm install
 ```
 
-Create a local `.env` file in the project root with the backend URL:
+Create a `.env` file in the project root containing:
 
 ```env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
-Start the development server:
+Start the frontend:
 
-```bash
+```powershell
 npm run dev
 ```
 
-Open the local URL printed by Vite in your terminal.
-
-> **Note:** Configure the JWT signing secret using the environment variable expected by the backend. Never commit secrets or your local database to GitHub. Verify the backend's expected environment variables before deployment.
+Open the local URL printed by Vite.
 
 ## How the Money Coach Works
 
-Vikasana includes a rule-based Money Coach that interprets supported questions and provides responses based on its implemented rules and available financial information.
+Vikasana includes a **rule-based Money Coach** that responds to supported financial questions using implemented rules and available financial information. It is designed to help users better understand their spending and build budgeting and saving habits.
 
-It is designed to make financial information easier to understand and encourage better budgeting and saving habits. It should not be treated as a substitute for professional financial advice.
+The current coach is rule-based; it does not rely on a generative AI API.
 
 ## Security and Privacy
 
-- Keep environment variables and credentials out of version control.
-- Use a strong, private JWT signing secret.
-- Test authentication and ensure users can access only their own financial records.
-- Use HTTPS and an appropriately secured, persistent database when deploying.
+- Never commit `.env` files, credentials, or local database files.
+- Use a strong JWT signing secret.
+- Verify that users can access only their own financial records.
+- Use HTTPS and secure, persistent database storage for production deployments.
 - Avoid entering real financial information into an unverified deployment.
 
 ## Future Improvements
 
-Potential improvements include:
-
-- More detailed spending analytics and visualizations.
-- Recurring transaction support.
-- Budget limits and category-based alerts.
-- Enhanced accessibility and mobile experience.
-- Automated backend and frontend tests.
-- Secure production deployment with database backups.
+- Expanded financial charts and spending analytics.
+- Recurring transactions and budget alerts.
+- Automated frontend and backend tests.
+- Improved accessibility and mobile experience.
+- Production deployment with persistent storage and backups.
 
 ## Author
 
@@ -149,4 +147,4 @@ GitHub: [@ashrita4343](https://github.com/ashrita4343)
 
 ---
 
-*Vikasana is a personal finance project built to explore full-stack development, financial data management, and accessible money-management tools.*
+Vikasana is a personal finance project exploring full-stack development, financial data management, and accessible money-management tools.
