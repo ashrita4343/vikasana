@@ -1,4 +1,4 @@
-# Vikasana — Personal Finance & Money Coach
+# Vikasana: Personal Finance & Money Coach
 
 **Take control of your money. Build better financial habits.**
 
